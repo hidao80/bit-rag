@@ -7,7 +7,6 @@ from langchain_core.documents import Document
 import src.main as main_module
 from src.main import _format_docs
 
-
 # --- Unit: _format_docs ---
 
 def test_format_docs_empty():

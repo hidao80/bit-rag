@@ -1,16 +1,17 @@
 import os
 import re
+from contextlib import asynccontextmanager
 from operator import itemgetter
+
 import ollama as _ollama
-from fastapi import FastAPI, BackgroundTasks, HTTPException, File, UploadFile
-from pydantic import BaseModel
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from contextlib import asynccontextmanager
+from pydantic import BaseModel
 
 # --- Configuration ---
 PERSIST_DIR   = os.getenv("PERSIST_DIR",   "./my_rag_db")
