@@ -1,0 +1,18 @@
+# Runtime / data
+my_rag_db
+
+# Python
+.venv
+__pycache__
+*.pyc
+
+# Tools cache
+.uv-cache
+.ruff_cache
+.pytest_cache
+
+# Secrets
+.env
+
+# Claude Code workspace (session history, personal config)
+.claude

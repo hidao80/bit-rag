@@ -1,0 +1,61 @@
+# Virtual environments
+.venv
+venv
+env
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+
+# Test & Coverage
+.pytest_cache
+.coverage
+htmlcov
+
+# Documentation
+*.md
+docs
+
+# CI/CD
+.github
+
+# Build
+build
+dist
+*.egg-info
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# RAG DB (use volume instead)
+my_rag_db
+
+# Type checking
+.mypy_cache

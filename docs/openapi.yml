@@ -1,0 +1,172 @@
+openapi: "3.1.0"
+info:
+  title: bit-rag
+  description: Local RAG API server powered by FastAPI, LangChain, ChromaDB, and Ollama.
+  version: "1.0.0"
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /ingest:
+    post:
+      summary: Ingest text
+      description: Split the provided text into chunks and add them to the vector database. Processing runs in the background and the endpoint returns immediately.
+      operationId: ingest_data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestRequest"
+            example:
+              text: "LangChain is a framework for building LLM applications."
+      responses:
+        "202":
+          description: Ingest accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedResponse"
+              example:
+                status: accepted
+                message: Ingest started in background.
+
+  /ingest/file:
+    post:
+      summary: Ingest text-based file
+      description: |
+        Upload any UTF-8 encoded file (txt, md, log, yaml, json, etc.).
+        Its contents are split into chunks and added to the vector database in the background.
+        Binary files are rejected with 400.
+      operationId: ingest_file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Any UTF-8 encoded file to ingest (txt, md, log, yaml, json, etc.).
+      responses:
+        "202":
+          description: Ingest accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedResponse"
+              example:
+                status: accepted
+                message: "Ingest of 'document.md' started in background."
+        "400":
+          description: File is not UTF-8 encoded text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+              example:
+                detail: File must be UTF-8 encoded text.
+
+  /query:
+    post:
+      summary: Query the RAG chain
+      description: Retrieve the top-3 relevant chunks from the vector database and answer the question via the Ollama LLM. If the model emits `<think>` blocks they are returned separately in the `thinking` field.
+      operationId: query_rag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryRequest"
+            example:
+              question: What is LangChain?
+              language: en_US
+      responses:
+        "200":
+          description: Answer generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryResponse"
+              example:
+                question: What is LangChain?
+                answer: LangChain is a framework for building applications powered by large language models.
+                thinking: null
+        "503":
+          description: Vector database not ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+              example:
+                detail: DB is not ready.
+
+components:
+  schemas:
+    IngestRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: Raw text to be chunked and stored in the vector database.
+
+    QueryRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          description: Question to answer using the RAG chain.
+        language:
+          type: string
+          default: en_US
+          description: BCP-47 locale code that controls the response language (e.g. `ja_JP`, `en_US`).
+
+    QueryResponse:
+      type: object
+      required:
+        - question
+        - answer
+      properties:
+        question:
+          type: string
+          description: The original question.
+        answer:
+          type: string
+          description: Answer text (thinking blocks stripped).
+        thinking:
+          type:
+            - string
+            - "null"
+          description: Raw content of `<think>...</think>` blocks, or null when absent.
+
+    AcceptedResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          example: accepted
+        message:
+          type: string
+
+    ErrorDetail:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
