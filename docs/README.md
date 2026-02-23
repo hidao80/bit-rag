@@ -1,10 +1,11 @@
 # bit-rag
 
-![Lint](https://github.com/hidao80/bit-rag/actions/workflows/lint.yml/badge.svg)
-![Format](https://github.com/hidao80/bit-rag/actions/workflows/format.yml/badge.svg)
-![Test](https://github.com/hidao80/bit-rag/actions/workflows/test.yml/badge.svg)
-![Audit](https://github.com/hidao80/bit-rag/actions/workflows/audit.yml/badge.svg)
-![Docker](https://github.com/hidao80/bit-rag/actions/workflows/docker.yml/badge.svg)
+![Lint](https://github.com/hidao80/bit-rag/actions/workflows/lint.yml/badge.svg)&emsp;
+![Format](https://github.com/hidao80/bit-rag/actions/workflows/format.yml/badge.svg)&emsp;
+![Test](https://github.com/hidao80/bit-rag/actions/workflows/test.yml/badge.svg)&emsp;
+![Audit](https://github.com/hidao80/bit-rag/actions/workflows/audit.yml/badge.svg)&emsp;
+![Docker](https://github.com/hidao80/bit-rag/actions/workflows/docker.yml/badge.svg)&emsp;
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/hidao80/bit-rag)
 
 # Overview
 
