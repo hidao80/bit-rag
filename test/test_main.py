@@ -9,6 +9,7 @@ from src.main import _format_docs
 
 # --- Unit: _format_docs ---
 
+
 def test_format_docs_empty():
     assert _format_docs([]) == ""
 
@@ -23,6 +24,7 @@ def test_format_docs_multiple():
 
 
 # --- Unit: process_ingest ---
+
 
 def test_process_ingest_skips_when_no_vectorstore(capsys):
     original = main_module.vectorstore
@@ -47,6 +49,7 @@ def test_process_ingest_adds_documents():
 
 # --- Fixture ---
 
+
 @pytest.fixture
 def client():
     mock_vs = MagicMock()
@@ -68,6 +71,7 @@ def client():
 
 # --- API: POST /ingest ---
 
+
 def test_ingest_returns_accepted(client):
     c, _, _ = client
     response = c.post("/ingest", json={"text": "LangChain is a framework"})
@@ -85,6 +89,7 @@ def test_ingest_triggers_add_documents(client):
 
 
 # --- API: POST /query ---
+
 
 def test_query_returns_answer(client):
     c, _, _ = client

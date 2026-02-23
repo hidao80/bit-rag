@@ -14,9 +14,9 @@ from langchain_text_splitters import CharacterTextSplitter
 from pydantic import BaseModel
 
 # --- Configuration ---
-PERSIST_DIR   = os.getenv("PERSIST_DIR",   "./my_rag_db")
-EMBED_MODEL   = os.getenv("EMBED_MODEL",   "nomic-embed-text")
-LLM_MODEL     = os.getenv("LLM_MODEL",     "qwen2.5:1.5b")
+PERSIST_DIR = os.getenv("PERSIST_DIR", "./my_rag_db")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
 RESPONSE_LANG = os.getenv("RESPONSE_LANG", "en_US")
 
 # Global variable declarations
@@ -50,10 +50,7 @@ async def lifespan(app: FastAPI):
     embeddings = OllamaEmbeddings(model=EMBED_MODEL)
 
     # Load existing DB (auto-created if directory does not exist)
-    vectorstore = Chroma(
-        persist_directory=PERSIST_DIR,
-        embedding_function=embeddings
-    )
+    vectorstore = Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
 
     llm = OllamaLLM(model=LLM_MODEL)
     prompt = PromptTemplate.from_template(
@@ -67,7 +64,7 @@ async def lifespan(app: FastAPI):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     qa_chain = (
         {
-            "context":  itemgetter("question") | retriever | _format_docs,
+            "context": itemgetter("question") | retriever | _format_docs,
             "question": itemgetter("question"),
             "language": itemgetter("language"),
         }
@@ -112,6 +109,7 @@ def process_ingest(text: str):
 
 # --- Endpoints ---
 
+
 @app.post("/ingest")
 async def ingest_data(request: IngestRequest, background_tasks: BackgroundTasks):
     """Dispatch ingest task to background and return immediately."""
@@ -150,4 +148,5 @@ async def query_rag(request: QueryRequest) -> QueryResponse:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
