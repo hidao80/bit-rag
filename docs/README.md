@@ -1,5 +1,6 @@
 # bit-rag
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)&emsp;
 ![Lint](https://github.com/hidao80/bit-rag/actions/workflows/lint.yml/badge.svg)&emsp;
 ![Format](https://github.com/hidao80/bit-rag/actions/workflows/format.yml/badge.svg)&emsp;
 ![Test](https://github.com/hidao80/bit-rag/actions/workflows/test.yml/badge.svg)&emsp;
