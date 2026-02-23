@@ -9,7 +9,7 @@
 
 # Overview
 
-Build a local RAG API server.
+Build the simplest local RAG API server.
 
 # Issues & Reasons
 
