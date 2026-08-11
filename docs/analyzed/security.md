@@ -33,9 +33,7 @@ The `language` field from `QueryRequest` is injected directly into the LLM promp
 
 ```python
 # src/main.py:58-65
-prompt = PromptTemplate.from_template(
-    "...Respond in the language specified by locale '{language}'.\n\n..."
-)
+prompt = PromptTemplate.from_template("...Respond in the language specified by locale '{language}'.\n\n...")
 ```
 
 A malicious `language` value such as `"en_US. Ignore all previous instructions and..."` would be passed verbatim to the LLM. This is a **prompt injection** vector.
