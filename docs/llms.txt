@@ -1,0 +1,33 @@
+# bit-rag
+
+> The simplest local RAG API server: FastAPI + LangChain + ChromaDB + Ollama. Fully self-hosted, no external database, web server, or cloud API keys required — everything runs on your own machine.
+
+bit-rag exposes retrieval-augmented generation as a small, self-contained Web API. Spinning up a full database server or web framework just to try RAG is overkill; this project drops straight into existing apps and webhooks via a minimal HTTP interface.
+
+## Key facts
+
+- Stack: FastAPI, LangChain, ChromaDB (vector store), Ollama (embeddings + LLM)
+- Default models: `nomic-embed-text` (embeddings), `qwen2.5:1.5b` (LLM)
+- Runs with `docker compose up` (Ollama + app together, models pulled automatically) or locally with `uv sync` + `uvicorn`
+- License: MIT
+- Repository: https://github.com/hidao80/bit-rag
+
+## API
+
+- `POST /ingest` — register raw text into the vector DB (background process)
+- `POST /ingest/file` — register a UTF-8 text file (txt, md, log, yaml, json, etc.)
+- `POST /query` — answer a question using RAG; returns `{question, answer, thinking}`; `language` field selects the response locale
+- `GET /debug/search` — return raw retrieved chunks for a query without invoking the LLM
+
+## Ingest behavior
+
+Markdown input is split by heading (H1/H2/H3), tables are converted to independent JSON-line chunks, and short text fragments are merged with neighbors to improve retrieval quality. Plain text files are split by paragraph/sentence boundaries with configurable chunk size and overlap.
+
+## Configuration
+
+Environment variables (see `src/main.py`): `PERSIST_DIR`, `EMBED_MODEL`, `LLM_MODEL`, `RESPONSE_LANG`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MIN_CHUNK_SIZE`.
+
+## Docs
+
+- [README](README.md): full setup, Docker/local instructions, troubleshooting
+- [OpenAPI spec](openapi.yml): machine-readable API contract

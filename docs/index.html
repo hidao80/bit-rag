@@ -1,0 +1,147 @@
+<title>bit-rag — The Simplest Local RAG API Server</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="bit-rag is the simplest local RAG API server. FastAPI + LangChain + ChromaDB + Ollama, no database or web server setup required. Self-hosted, private, and ready in minutes.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="bit-rag — The Simplest Local RAG API Server">
+<meta property="og:description" content="FastAPI + LangChain + ChromaDB + Ollama. Self-hosted RAG in one Docker command — no separate database or web server needed.">
+<meta property="og:site_name" content="bit-rag">
+<meta property="og:url" content="https://github.com/hidao80/bit-rag">
+<meta property="og:image" content="https://hidao80.github.io/bit-rag/ogp.png">
+
+<!-- X.com / Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="bit-rag — The Simplest Local RAG API Server">
+<meta name="twitter:description" content="FastAPI + LangChain + ChromaDB + Ollama. Self-hosted RAG in one Docker command — no separate database or web server needed.">
+<meta name="twitter:image" content="https://hidao80.github.io/bit-rag/ogp.png">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "bit-rag",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Linux, macOS, Windows",
+  "description": "The simplest local RAG API server, built with FastAPI, LangChain, ChromaDB, and Ollama. Runs fully self-hosted with no external services required.",
+  "url": "https://github.com/hidao80/bit-rag",
+  "codeRepository": "https://github.com/hidao80/bit-rag",
+  "license": "https://opensource.org/licenses/MIT",
+  "programmingLanguage": "Python",
+  "image": "https://hidao80.github.io/bit-rag/ogp.png",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+<style>
+  :root { --pico-font-size: 100%; }
+  .hero { text-align: center; padding: 4rem 1rem 2rem; }
+  .hero h1 { font-size: 2.6rem; margin-bottom: 0.5rem; }
+  .hero p.tagline { font-size: 1.2rem; color: var(--pico-muted-color); max-width: 640px; margin: 0 auto 1.5rem; }
+  .hero .cta { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+  .badges img { height: 20px; }
+  section { padding: 2.5rem 0; }
+  .grid-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .grid-features article { text-align: center; }
+  .grid-features .icon { font-size: 2rem; }
+  pre { border-radius: var(--pico-border-radius); }
+  code.lang-bash::before { content: "$ "; opacity: 0.5; }
+  table.api-table code { white-space: nowrap; }
+  footer.container { text-align: center; padding: 2rem 0; color: var(--pico-muted-color); }
+  footer.container a { color: inherit; }
+</style>
+
+<main class="container">
+
+  <section class="hero">
+    <p style="font-size:3rem; margin-bottom:0;">🤖</p>
+    <h1>bit-rag</h1>
+    <p class="tagline">The simplest local RAG API server. FastAPI + LangChain + ChromaDB + Ollama — no separate database or web server to stand up.</p>
+    <div class="cta">
+      <a role="button" href="https://github.com/hidao80/bit-rag" target="_blank" rel="noopener">View on GitHub</a>
+      <a role="button" class="secondary" href="#quick-start">Quick Start</a>
+    </div>
+    <div class="badges">
+      <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+      <img src="https://github.com/hidao80/bit-rag/actions/workflows/lint.yml/badge.svg" alt="Lint">
+      <img src="https://github.com/hidao80/bit-rag/actions/workflows/test.yml/badge.svg" alt="Test">
+      <img src="https://github.com/hidao80/bit-rag/actions/workflows/docker.yml/badge.svg" alt="Docker">
+    </div>
+  </section>
+
+  <section id="why">
+    <h2>Why bit-rag</h2>
+    <p>Spinning up a full database server or web framework just to try RAG is overkill. bit-rag exposes retrieval-augmented generation as a small, self-contained Web API — so it drops straight into existing apps and webhooks, and runs entirely on your own machine.</p>
+  </section>
+
+  <section id="features">
+    <h2>Features</h2>
+    <div class="grid-features">
+      <article>
+        <div class="icon">🐳</div>
+        <h3>One-command start</h3>
+        <p><code>docker compose up</code> boots Ollama and the app together. Models are pulled automatically on first run.</p>
+      </article>
+      <article>
+        <div class="icon">🔒</div>
+        <h3>Fully self-hosted</h3>
+        <p>No cloud API keys, no external vector database. Everything runs locally with Ollama and ChromaDB.</p>
+      </article>
+      <article>
+        <div class="icon">📄</div>
+        <h3>Markdown-aware ingest</h3>
+        <p>Splits by heading, keeps tables intact as structured JSON rows, and merges short fragments for better retrieval.</p>
+      </article>
+      <article>
+        <div class="icon">🌐</div>
+        <h3>Multilingual answers</h3>
+        <p>Set a response locale per request — answer the same question in English, Japanese, or any language your model supports.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="quick-start">
+    <h2>Quick Start</h2>
+    <p><strong>Run with Docker (recommended)</strong></p>
+    <pre><code class="lang-bash">docker compose up</code></pre>
+    <p><strong>Run locally</strong></p>
+    <pre><code class="lang-bash">ollama pull nomic-embed-text:latest
+ollama pull qwen2.5:1.5b
+uv sync
+uv run uvicorn src.main:app --reload</code></pre>
+  </section>
+
+  <section id="api">
+    <h2>API at a glance</h2>
+    <figure>
+      <table class="api-table">
+        <thead>
+          <tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/ingest</code></td><td>POST</td><td>Register text into the vector DB (background process)</td></tr>
+          <tr><td><code>/ingest/file</code></td><td>POST</td><td>Register a UTF-8 text file (txt, md, log, yaml, json, etc.)</td></tr>
+          <tr><td><code>/query</code></td><td>POST</td><td>Answer questions using RAG</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <pre><code class="lang-bash">curl -X POST "http://localhost:8000/query" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is LangChain?"}'</code></pre>
+  </section>
+
+</main>
+
+<footer class="container">
+  <p>MIT License · <a href="https://github.com/hidao80/bit-rag" target="_blank" rel="noopener">github.com/hidao80/bit-rag</a></p>
+</footer>
