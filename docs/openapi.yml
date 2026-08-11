@@ -25,7 +25,7 @@ paths:
             example:
               text: "LangChain is a framework for building LLM applications."
       responses:
-        "202":
+        "200":
           description: Ingest accepted
           content:
             application/json:
@@ -57,7 +57,7 @@ paths:
                   format: binary
                   description: Any UTF-8 encoded file to ingest (txt, md, log, yaml, json, etc.).
       responses:
-        "202":
+        "200":
           description: Ingest accepted
           content:
             application/json:
@@ -100,6 +100,58 @@ paths:
                 question: What is LangChain?
                 answer: LangChain is a framework for building applications powered by large language models.
                 thinking: null
+        "404":
+          description: Ollama model not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "502":
+          description: Ollama API error (other than model-not-found)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "503":
+          description: QA chain not ready, or Ollama unreachable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+              example:
+                detail: DB is not ready.
+
+  /debug/search:
+    get:
+      summary: Raw vector search (debug)
+      description: Return the raw retrieved chunks for a query without invoking the LLM. Not intended for production use; exposes stored chunk content and metadata directly.
+      operationId: debug_search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query text.
+        - name: k
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 5
+          description: Number of chunks to retrieve.
+      responses:
+        "200":
+          description: Retrieved chunks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebugSearchResponse"
+              example:
+                query: What is LangChain?
+                chunks:
+                  - content: LangChain is a framework for building LLM applications.
+                    metadata: {}
         "503":
           description: Vector database not ready
           content:
@@ -170,3 +222,27 @@ components:
       properties:
         detail:
           type: string
+
+    DebugSearchResponse:
+      type: object
+      required:
+        - query
+        - chunks
+      properties:
+        query:
+          type: string
+          description: The original query text.
+        chunks:
+          type: array
+          items:
+            type: object
+            required:
+              - content
+              - metadata
+            properties:
+              content:
+                type: string
+                description: Raw chunk text.
+              metadata:
+                type: object
+                description: Chunk metadata (currently always empty — no metadata is stored on ingest).

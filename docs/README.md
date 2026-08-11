@@ -12,6 +12,8 @@
 
 Build the simplest local RAG API server.
 
+:link: [Landing page](https://hidao80.github.io/bit-rag/) &nbsp;|&nbsp; :robot: [llms.txt](llms.txt) for LLM-friendly project summary
+
 # Issues & Reasons
 
 When spinning up a full database server or web server just to use RAG is overkill, this repository provides a simpler alternative.
