@@ -15,4 +15,4 @@ __pycache__
 .env
 
 # Claude Code workspace (session history, personal config)
-.claude
+graphify-out/
