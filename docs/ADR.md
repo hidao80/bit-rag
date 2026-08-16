@@ -66,7 +66,7 @@ The app needed a container image suitable for production use, minimizing image s
 
 - Final image excludes build tooling (`uv` install layer) and dev dependencies, reducing attack surface and size.
 - Application process does not run as root in the intended (`runner`) target.
-- `docker-compose.yml` currently sets `build.target: builder`, i.e. local/compose runs use the *builder* stage (which still runs as root and includes `uv`), not the hardened `runner` stage — this is a known gap between the documented Dockerfile design and how compose invokes it (see `docs/analyzed/security.md` finding #2).
+- `docker-compose.yml` currently sets `build.target: builder`, i.e. local/compose runs use the *builder* stage (which still runs as root and includes `uv`), not the hardened `runner` stage — this is a known gap between the documented Dockerfile design and how compose invokes it.
 
 ---
 

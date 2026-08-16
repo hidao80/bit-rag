@@ -31,3 +31,5 @@ Environment variables (see `src/main.py`): `PERSIST_DIR`, `EMBED_MODEL`, `LLM_MO
 
 - [README](README.md): full setup, Docker/local instructions, troubleshooting
 - [OpenAPI spec](openapi.yml): machine-readable API contract
+- [Architecture Decision Record](ADR.md): key design decisions and their rationale
+- [Landing page](https://hidao80.github.io/bit-rag/): project overview site

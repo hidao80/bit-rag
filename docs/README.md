@@ -50,6 +50,7 @@ uv run uvicorn src.main:app --reload
 | `/ingest` | POST | Register text into vector DB (background process) |
 | `/ingest/file` | POST | Register a UTF-8 text file into vector DB (txt, md, log, yaml, json, etc.) |
 | `/query` | POST | Answer questions using RAG |
+| `/debug/search` | GET | Return raw retrieved chunks for a query without invoking the LLM (debug only) |
 
 `/query` returns a JSON object with three fields:
 
@@ -64,7 +65,8 @@ uv run uvicorn src.main:app --reload
 | Status | Cause |
 |---|---|
 | `404` | The configured LLM model does not exist in Ollama |
-| `503` | Ollama is not reachable |
+| `502` | Ollama returned an error other than model-not-found |
+| `503` | Ollama is not reachable, or the vector DB is not ready |
 
 ```bash
 # Register text
@@ -97,6 +99,9 @@ Configurable at the top of [src/main.py](../src/main.py):
 | `EMBED_MODEL` | `nomic-embed-text` | Ollama embedding model |
 | `LLM_MODEL` | `qwen2.5:1.5b` | Ollama LLM model |
 | `RESPONSE_LANG` | `en_US` | Default response language (locale code, e.g. `ja_JP`) |
+| `CHUNK_SIZE` | `3200` | Max characters per ingest chunk |
+| `CHUNK_OVERLAP` | `300` | Character overlap between plain-text chunks |
+| `MIN_CHUNK_SIZE` | `CHUNK_SIZE // 2` | Chunks shorter than this are merged with the preceding chunk |
 
 ## Clearing the Database
 
