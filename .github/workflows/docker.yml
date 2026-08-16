@@ -12,5 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install docker CLI (act only)
+        if: ${{ env.ACT }}
+        run: which docker || (apt-get update && apt-get install -y docker.io)
+
       - name: Build Docker image
         run: docker build -t ${{ github.repository }}:${{ github.sha }} .
