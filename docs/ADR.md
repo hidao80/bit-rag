@@ -14,18 +14,19 @@ type: adr
 
 | ID | Title | Status | Date |
 |---|---|---|---|
-| [ADR-0001](#adr-0001-fastapi--langchain--chromadb--ollama-stack) | FastAPI + LangChain + ChromaDB + Ollama stack | Accepted (vector store layer superseded by ADR-0005) | 2026-02-23 |
+| [ADR-0001](#adr-0001-fastapi--langchain--chromadb--ollama-stack) | FastAPI + LangChain + ChromaDB + Ollama stack | Accepted (vector store layer superseded by ADR-0005; LangChain packages narrowed by ADR-0007) | 2026-02-23 |
 | [ADR-0002](#adr-0002-multi-stage-dockerfile-with-non-root-runtime-user) | Multi-stage Dockerfile with non-root runtime user | Accepted | 2026-02-23 |
 | [ADR-0003](#adr-0003-ruff-for-linting-and-formatting) | Ruff for linting and formatting | Accepted | 2026-02-23 |
 | [ADR-0004](#adr-0004-docker-build-workflow-runner-image) | Docker build workflow runner image | Accepted | 2026-02-23 |
 | [ADR-0005](#adr-0005-use-chromadb-directly-instead-of-langchain-chroma) | Use chromadb directly instead of langchain-chroma | Accepted | 2026-11-15 |
 | [ADR-0006](#adr-0006-separate-ollama-client-url-from-server-bind-address) | Separate Ollama client URL from server bind address | Accepted | 2026-11-15 |
+| [ADR-0007](#adr-0007-remove-unused-langchain-packages) | Remove unused LangChain packages | Accepted | 2026-11-15 |
 
 ---
 
 ## ADR-0001: FastAPI + LangChain + ChromaDB + Ollama stack
 
-- **Status**: Accepted (the `langchain-chroma` vector store layer is superseded by [ADR-0005](#adr-0005-use-chromadb-directly-instead-of-langchain-chroma))
+- **Status**: Accepted (the `langchain-chroma` vector store layer is superseded by [ADR-0005](#adr-0005-use-chromadb-directly-instead-of-langchain-chroma); `langchain` and `langchain-community` are removed by [ADR-0007](#adr-0007-remove-unused-langchain-packages))
 - **Date**: 2026-02-23
 - **Commit**: `0da6f30` (first commit! 🎉)
 
@@ -168,6 +169,27 @@ The app used only three operations of `langchain_chroma.Chroma` (`add_documents`
 - The app works when the host environment sets `OLLAMA_HOST=0.0.0.0:11434` for the Ollama server.
 - Deployments that used `OLLAMA_HOST` to point at a remote Ollama keep working without changes.
 - Without a timeout, a slow or stuck Ollama request waits indefinitely instead of returning `503`; introducing a timeout would be a new decision.
+
+---
+
+## ADR-0007: Remove unused LangChain packages
+
+- **Status**: Accepted
+- **Date**: 2026-11-15
+- **Narrows**: the LangChain package list of ADR-0001
+
+### Context
+
+`pyproject.toml` declared `langchain` and `langchain-community`, but neither is imported by `src/` or `test/`. The app uses only `langchain-core` (documents, prompts, output parsers, `BaseRetriever`, LCEL), `langchain-ollama`, and `langchain-text-splitters`. The two unused packages pulled in a large transitive tree (e.g. `langgraph`, `sqlalchemy`, `aiohttp`).
+
+### Decision
+
+Remove `langchain` and `langchain-community` from the runtime dependencies. LangChain remains part of the stack through `langchain-core`, `langchain-ollama`, and `langchain-text-splitters`.
+
+### Consequences
+
+- The locked dependency set shrinks from 143 to 120 packages, reducing install size and the surface checked by `pip-audit`.
+- Any future use of `langchain` or `langchain-community` APIs requires re-adding the package explicitly.
 
 ---
 
