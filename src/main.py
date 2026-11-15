@@ -2,27 +2,60 @@ import json
 import os
 import re
 import uuid
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from operator import itemgetter
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 import chromadb
+import httpx
 import ollama as _ollama
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableLambda
+from langchain_core.retrievers import BaseRetriever
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 from markdown_it import MarkdownIt
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+_OLLAMA_DEFAULT_PORT = 11434
+_WILDCARD_HOSTS = {"", "0.0.0.0", "::"}
+
+
+def _resolve_ollama_base_url() -> str:
+    """Resolve the Ollama URL the app connects to.
+
+    Uses OLLAMA_BASE_URL, falling back to OLLAMA_HOST. Wildcard bind addresses
+    (e.g. 0.0.0.0, which is valid for the Ollama server but not as a client
+    destination) are replaced with 127.0.0.1.
+    """
+    raw = (os.getenv("OLLAMA_BASE_URL") or os.getenv("OLLAMA_HOST") or "").strip()
+    if "://" in raw:
+        default_port = None
+    else:
+        raw = f"http://{raw}"
+        default_port = _OLLAMA_DEFAULT_PORT
+    parts = urlsplit(raw)
+    host = parts.hostname or ""
+    if host in _WILDCARD_HOSTS:
+        host = "127.0.0.1"
+    elif ":" in host:
+        host = f"[{host}]"
+    port = parts.port or default_port
+    netloc = f"{host}:{port}" if port else host
+    userinfo = parts.netloc.rpartition("@")[0]
+    if userinfo:
+        netloc = f"{userinfo}@{netloc}"
+    return urlunsplit((parts.scheme, netloc, parts.path.rstrip("/"), "", ""))
+
 
 # --- Configuration ---
 PERSIST_DIR = os.getenv("PERSIST_DIR", "./my_rag_db")
-# Client-side URL; kept separate from OLLAMA_HOST (server bind address such as 0.0.0.0)
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+OLLAMA_BASE_URL = _resolve_ollama_base_url()
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
 RESPONSE_LANG = os.getenv("RESPONSE_LANG", "en_US")
@@ -33,8 +66,11 @@ MIN_CHUNK_SIZE = int(os.getenv("MIN_CHUNK_SIZE", str(CHUNK_SIZE // 2)))
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "langchain")
 
 
-class Chroma:
-    """Minimal vector store backed directly by chromadb."""
+class BitRagChromaStore:
+    """bit-rag's own minimal vector store backed directly by chromadb.
+
+    Not langchain_chroma.Chroma: only add_documents, similarity_search and as_retriever are implemented.
+    """
 
     def __init__(self, persist_directory: str, embedding_function: Embeddings, collection_name: str = COLLECTION_NAME):
         self._embeddings = embedding_function
@@ -42,16 +78,20 @@ class Chroma:
         self._collection = self._client.get_or_create_collection(name=collection_name, embedding_function=None)
 
     def add_documents(self, docs: list[Document]) -> list[str]:
-        if not docs:
-            return []
-        texts = [d.page_content for d in docs]
-        ids = [str(uuid.uuid4()) for _ in docs]
-        self._collection.add(
-            ids=ids,
-            documents=texts,
-            embeddings=self._embeddings.embed_documents(texts),
-            metadatas=[d.metadata or None for d in docs],
-        )
+        ids: list[str] = []
+        # Queried per call because the limit depends on the chromadb backend
+        batch_size = max(1, self._client.get_max_batch_size())
+        for start in range(0, len(docs), batch_size):
+            batch = docs[start : start + batch_size]
+            texts = [d.page_content for d in batch]
+            batch_ids = [str(uuid.uuid4()) for _ in batch]
+            self._collection.add(
+                ids=batch_ids,
+                documents=texts,
+                embeddings=self._embeddings.embed_documents(texts),
+                metadatas=[d.metadata or None for d in batch],
+            )
+            ids.extend(batch_ids)
         return ids
 
     def similarity_search(self, query: str, k: int = 4) -> list[Document]:
@@ -64,13 +104,24 @@ class Chroma:
         metadatas = result["metadatas"][0] if result["metadatas"] else [None] * len(documents)
         return [Document(page_content=text or "", metadata=meta or {}) for text, meta in zip(documents, metadatas)]
 
-    def as_retriever(self, search_kwargs: dict | None = None) -> RunnableLambda:
-        k = (search_kwargs or {}).get("k", 4)
-        return RunnableLambda(lambda query: self.similarity_search(query, k=k))
+    def as_retriever(self, search_kwargs: dict | None = None) -> "BitRagChromaRetriever":
+        return BitRagChromaRetriever(vectorstore=self, k=(search_kwargs or {}).get("k", 4))
+
+
+class BitRagChromaRetriever(BaseRetriever):
+    """LangChain retriever over BitRagChromaStore.similarity_search."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    vectorstore: BitRagChromaStore
+    k: int = 4
+
+    def _get_relevant_documents(self, query: str, *, run_manager: CallbackManagerForRetrieverRun) -> list[Document]:
+        return self.vectorstore.similarity_search(query, k=self.k)
 
 
 # Global variable declarations
-vectorstore: Chroma | None = None
+vectorstore: BitRagChromaStore | None = None
 qa_chain = None
 
 _THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL)
@@ -101,7 +152,7 @@ async def lifespan(app: FastAPI):
     embeddings = OllamaEmbeddings(model=EMBED_MODEL, base_url=OLLAMA_BASE_URL)
 
     # Load existing DB (auto-created if directory does not exist)
-    vectorstore = Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
+    vectorstore = BitRagChromaStore(persist_directory=PERSIST_DIR, embedding_function=embeddings)
 
     llm = OllamaLLM(model=LLM_MODEL, base_url=OLLAMA_BASE_URL)
     prompt = PromptTemplate.from_template(
@@ -401,15 +452,31 @@ def process_ingest(text: str, filename: str | None = None):
 # --- Endpoints ---
 
 
+@contextmanager
+def _ollama_errors():
+    """Translate Ollama client errors into HTTP errors."""
+    try:
+        yield
+    except _ollama.ResponseError as e:
+        status = 404 if e.status_code == 404 else 502
+        raise HTTPException(status_code=status, detail=str(e.error)) from e
+    except httpx.TimeoutException as e:
+        # The ollama client converts only httpx.ConnectError; timeouts surface as-is
+        raise HTTPException(status_code=503, detail="Ollama did not respond in time.") from e
+    except (ConnectionError, httpx.TransportError) as e:
+        raise HTTPException(status_code=503, detail="Cannot connect to Ollama. Make sure it is running.") from e
+
+
 @app.get("/debug/search")
-async def debug_search(q: str, k: int = 5):
-    """Return raw retrieved chunks for a query without invoking the LLM."""
+def debug_search(q: str, k: int = 5):
+    """Return raw retrieved chunks for a query without invoking the LLM.
+
+    Defined as sync so FastAPI runs the blocking search in its threadpool.
+    """
     if vectorstore is None:
         raise HTTPException(status_code=503, detail="DB is not ready.")
-    try:
+    with _ollama_errors():
         docs = vectorstore.similarity_search(q, k=k)
-    except ConnectionError:
-        raise HTTPException(status_code=503, detail="Cannot connect to Ollama. Make sure it is running.")
     return {"query": q, "chunks": [{"content": d.page_content, "metadata": d.metadata} for d in docs]}
 
 
@@ -438,13 +505,8 @@ async def query_rag(request: QueryRequest) -> QueryResponse:
     if qa_chain is None:
         raise HTTPException(status_code=503, detail="DB is not ready.")
 
-    try:
+    with _ollama_errors():
         raw = await qa_chain.ainvoke({"question": request.question, "language": request.language})
-    except _ollama.ResponseError as e:
-        status = 404 if e.status_code == 404 else 502
-        raise HTTPException(status_code=status, detail=str(e.error))
-    except ConnectionError:
-        raise HTTPException(status_code=503, detail="Cannot connect to Ollama. Make sure it is running.")
     answer, thinking = _split_thinking(raw)
     return QueryResponse(question=request.question, answer=answer, thinking=thinking)
 
