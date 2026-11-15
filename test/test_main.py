@@ -106,6 +106,13 @@ def test_query_passes_question_to_chain(client):
     mock_qa.ainvoke.assert_called_once_with({"question": "What is LangChain?", "language": main_module.RESPONSE_LANG})
 
 
+def test_debug_search_returns_503_when_ollama_unreachable(client):
+    c, mock_vs, _ = client
+    mock_vs.similarity_search.side_effect = ConnectionError
+    response = c.get("/debug/search", params={"q": "test"})
+    assert response.status_code == 503
+
+
 def test_query_returns_503_when_not_ready(client):
     c, _, _ = client
     original_qa = main_module.qa_chain

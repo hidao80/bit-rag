@@ -1,16 +1,19 @@
 import json
 import os
 import re
+import uuid
 from contextlib import asynccontextmanager
 from operator import itemgetter
 from pathlib import Path
 
+import chromadb
 import ollama as _ollama
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
-from langchain_chroma import Chroma
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableLambda
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 from markdown_it import MarkdownIt
@@ -18,12 +21,53 @@ from pydantic import BaseModel
 
 # --- Configuration ---
 PERSIST_DIR = os.getenv("PERSIST_DIR", "./my_rag_db")
+# Client-side URL; kept separate from OLLAMA_HOST (server bind address such as 0.0.0.0)
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
 RESPONSE_LANG = os.getenv("RESPONSE_LANG", "en_US")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "3200"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "300"))
 MIN_CHUNK_SIZE = int(os.getenv("MIN_CHUNK_SIZE", str(CHUNK_SIZE // 2)))
+# Same name as the langchain-chroma default, so existing DBs remain readable
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "langchain")
+
+
+class Chroma:
+    """Minimal vector store backed directly by chromadb."""
+
+    def __init__(self, persist_directory: str, embedding_function: Embeddings, collection_name: str = COLLECTION_NAME):
+        self._embeddings = embedding_function
+        self._client = chromadb.PersistentClient(path=persist_directory)
+        self._collection = self._client.get_or_create_collection(name=collection_name, embedding_function=None)
+
+    def add_documents(self, docs: list[Document]) -> list[str]:
+        if not docs:
+            return []
+        texts = [d.page_content for d in docs]
+        ids = [str(uuid.uuid4()) for _ in docs]
+        self._collection.add(
+            ids=ids,
+            documents=texts,
+            embeddings=self._embeddings.embed_documents(texts),
+            metadatas=[d.metadata or None for d in docs],
+        )
+        return ids
+
+    def similarity_search(self, query: str, k: int = 4) -> list[Document]:
+        result = self._collection.query(
+            query_embeddings=[self._embeddings.embed_query(query)],
+            n_results=k,
+            include=["documents", "metadatas"],
+        )
+        documents = result["documents"][0] if result["documents"] else []
+        metadatas = result["metadatas"][0] if result["metadatas"] else [None] * len(documents)
+        return [Document(page_content=text or "", metadata=meta or {}) for text, meta in zip(documents, metadatas)]
+
+    def as_retriever(self, search_kwargs: dict | None = None) -> RunnableLambda:
+        k = (search_kwargs or {}).get("k", 4)
+        return RunnableLambda(lambda query: self.similarity_search(query, k=k))
+
 
 # Global variable declarations
 vectorstore: Chroma | None = None
@@ -54,12 +98,12 @@ def _split_thinking(raw: str) -> tuple[str, str | None]:
 async def lifespan(app: FastAPI):
     """Load DB and models once on app startup."""
     global vectorstore, qa_chain
-    embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+    embeddings = OllamaEmbeddings(model=EMBED_MODEL, base_url=OLLAMA_BASE_URL)
 
     # Load existing DB (auto-created if directory does not exist)
     vectorstore = Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
 
-    llm = OllamaLLM(model=LLM_MODEL)
+    llm = OllamaLLM(model=LLM_MODEL, base_url=OLLAMA_BASE_URL)
     prompt = PromptTemplate.from_template(
         "Use the following context to answer the question. "
         "Respond in the language specified by locale '{language}'.\n\n"
@@ -362,7 +406,10 @@ async def debug_search(q: str, k: int = 5):
     """Return raw retrieved chunks for a query without invoking the LLM."""
     if vectorstore is None:
         raise HTTPException(status_code=503, detail="DB is not ready.")
-    docs = vectorstore.similarity_search(q, k=k)
+    try:
+        docs = vectorstore.similarity_search(q, k=k)
+    except ConnectionError:
+        raise HTTPException(status_code=503, detail="Cannot connect to Ollama. Make sure it is running.")
     return {"query": q, "chunks": [{"content": d.page_content, "metadata": d.metadata} for d in docs]}
 
 

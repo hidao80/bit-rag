@@ -96,6 +96,7 @@ Configurable at the top of [src/main.py](../src/main.py):
 | Variable | Default | Description |
 |---|---|---|
 | `PERSIST_DIR` | `./my_rag_db` | ChromaDB persistence directory |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama URL the app connects to (independent of the server-side `OLLAMA_HOST`) |
 | `EMBED_MODEL` | `nomic-embed-text` | Ollama embedding model |
 | `LLM_MODEL` | `qwen2.5:1.5b` | Ollama LLM model |
 | `RESPONSE_LANG` | `en_US` | Default response language (locale code, e.g. `ja_JP`) |
