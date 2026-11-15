@@ -5,9 +5,10 @@
 bit-rag is a RAG (Retrieval-Augmented Generation) API built with FastAPI, LangChain, ChromaDB, and Ollama. It ingests Markdown documents, splits and embeds them, stores vectors in a persistent Chroma DB, and answers questions by retrieving relevant chunks and passing them to a local Ollama LLM.
 
 - Entry point: `src/main.py`
+- Vector store: `BitRagChromaStore` in `src/main.py`, a minimal wrapper over `chromadb` (not `langchain-chroma`; see `docs/ADR.md` ADR-0005)
 - Tests: `test/test_main.py` (pytest)
 - Task runner: `taskipy` (see `pyproject.toml` for `dev`, `test`, `lint`, `fmt`, `audit`, `sync` tasks)
-- Config via environment variables: `PERSIST_DIR`, `EMBED_MODEL`, `LLM_MODEL`, `RESPONSE_LANG`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MIN_CHUNK_SIZE`
+- Config via environment variables: `PERSIST_DIR`, `COLLECTION_NAME`, `OLLAMA_BASE_URL` (falls back to `OLLAMA_HOST`), `EMBED_MODEL`, `LLM_MODEL`, `RESPONSE_LANG`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MIN_CHUNK_SIZE`
 
 ## Workflow
 

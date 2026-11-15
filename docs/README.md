@@ -60,13 +60,16 @@ uv run uvicorn src.main:app --reload
 | `answer` | string | The LLM answer |
 | `thinking` | string \| null | Chain-of-thought reasoning (present when the model uses `<think>` tags) |
 
-**Error responses:**
+**Error responses** (`/query` and `/debug/search`):
 
 | Status | Cause |
 |---|---|
-| `404` | The configured LLM model does not exist in Ollama |
+| `404` | The configured embedding or LLM model does not exist in Ollama |
 | `502` | Ollama returned an error other than model-not-found |
-| `503` | Ollama is not reachable, or the vector DB is not ready |
+| `503` | Ollama is not reachable or timed out, or the vector DB is not ready |
+
+> [!NOTE]
+> No client-side timeout is configured for Ollama requests (the Ollama client default is no timeout), so a slow model load waits instead of failing. The timeout case of `503` occurs only if a timeout is raised by the underlying HTTP client.
 
 ```bash
 # Register text
@@ -96,7 +99,8 @@ Configurable at the top of [src/main.py](../src/main.py):
 | Variable | Default | Description |
 |---|---|---|
 | `PERSIST_DIR` | `./my_rag_db` | ChromaDB persistence directory |
-| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama URL the app connects to (independent of the server-side `OLLAMA_HOST`) |
+| `COLLECTION_NAME` | `langchain` | ChromaDB collection name (the default matches databases created by earlier `langchain-chroma` based versions) |
+| `OLLAMA_BASE_URL` | `OLLAMA_HOST`, else `http://127.0.0.1:11434` | Ollama URL the app connects to. Falls back to `OLLAMA_HOST`; wildcard bind addresses (`0.0.0.0`, `::`) are replaced with `127.0.0.1` |
 | `EMBED_MODEL` | `nomic-embed-text` | Ollama embedding model |
 | `LLM_MODEL` | `qwen2.5:1.5b` | Ollama LLM model |
 | `RESPONSE_LANG` | `en_US` | Default response language (locale code, e.g. `ja_JP`) |
@@ -126,6 +130,10 @@ rm -rf ./my_rag_db
 After clearing, restart the app to recreate an empty database.
 
 ## Troubleshooting
+
+### `Cannot connect to Ollama` while Ollama is running
+
+`OLLAMA_HOST=0.0.0.0:11434` is a server bind address and cannot be used as a client destination on Windows. bit-rag maps wildcard addresses to `127.0.0.1` automatically; if Ollama runs on another host, set `OLLAMA_BASE_URL` explicitly (e.g. `http://gpu-box:11434`).
 
 ### Port 11434 is already in use
 

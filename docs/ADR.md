@@ -7,23 +7,25 @@ type: adr
 # bit-rag — Architecture Decision Record
 
 **Project**: bit-rag — Local RAG API server (FastAPI + LangChain + ChromaDB + Ollama)
-**Source**: `git log` (7 commits, `0da6f30` → `a147ef4`)
-**Generated**: 2026-07-12
+**Source**: `git log` (`0da6f30` → `a147ef4`; ADR-0005/0006 from `163fcc3` → `8b3afbd`)
+**Generated**: 2026-07-12 (updated 2026-11-15)
 
 ## Index
 
 | ID | Title | Status | Date |
 |---|---|---|---|
-| [ADR-0001](#adr-0001-fastapi--langchain--chromadb--ollama-stack) | FastAPI + LangChain + ChromaDB + Ollama stack | Accepted | 2026-02-23 |
+| [ADR-0001](#adr-0001-fastapi--langchain--chromadb--ollama-stack) | FastAPI + LangChain + ChromaDB + Ollama stack | Accepted (vector store layer superseded by ADR-0005) | 2026-02-23 |
 | [ADR-0002](#adr-0002-multi-stage-dockerfile-with-non-root-runtime-user) | Multi-stage Dockerfile with non-root runtime user | Accepted | 2026-02-23 |
 | [ADR-0003](#adr-0003-ruff-for-linting-and-formatting) | Ruff for linting and formatting | Accepted | 2026-02-23 |
 | [ADR-0004](#adr-0004-docker-build-workflow-runner-image) | Docker build workflow runner image | Accepted | 2026-02-23 |
+| [ADR-0005](#adr-0005-use-chromadb-directly-instead-of-langchain-chroma) | Use chromadb directly instead of langchain-chroma | Accepted | 2026-11-15 |
+| [ADR-0006](#adr-0006-separate-ollama-client-url-from-server-bind-address) | Separate Ollama client URL from server bind address | Accepted | 2026-11-15 |
 
 ---
 
 ## ADR-0001: FastAPI + LangChain + ChromaDB + Ollama stack
 
-- **Status**: Accepted
+- **Status**: Accepted (the `langchain-chroma` vector store layer is superseded by [ADR-0005](#adr-0005-use-chromadb-directly-instead-of-langchain-chroma))
 - **Date**: 2026-02-23
 - **Commit**: `0da6f30` (first commit! 🎉)
 
@@ -114,6 +116,58 @@ Change the runner label from `ubuntu-slim` to `ubuntu-latest`.
 
 - CI Docker build job runs on a valid, maintained GitHub-hosted runner.
 - No image-size optimization is applied at the *runner* level (that concern is instead handled inside the Dockerfile itself, see ADR-0002).
+
+---
+
+## ADR-0005: Use chromadb directly instead of langchain-chroma
+
+- **Status**: Accepted
+- **Date**: 2026-11-15
+- **Commits**: `163fcc3` (:recycle: use chromadb directly), `8b3afbd` (:bug: harden BitRagChromaStore)
+- **Supersedes**: the vector store layer of ADR-0001
+
+### Context
+
+The app used only three operations of `langchain_chroma.Chroma` (`add_documents`, `similarity_search`, `as_retriever`), while the `langchain-chroma` 1.1.0 package added an extra dependency layer on top of `chromadb` (1.5.1). Existing databases created through `langchain-chroma` had to remain readable.
+
+### Decision
+
+- Remove `langchain-chroma` and depend on `chromadb>=1.5.1` directly.
+- Implement `BitRagChromaStore` in `src/main.py`, a minimal wrapper over `chromadb.PersistentClient`, named to make clear it is not `langchain_chroma.Chroma`. `as_retriever()` returns `BitRagChromaRetriever`, a LangChain `BaseRetriever`, so the LCEL chain is unchanged.
+- Keep the collection name `langchain` (the `langchain-chroma` default; configurable via `COLLECTION_NAME`) for compatibility with existing databases.
+- Store empty metadata as `None` (chromadb 1.x rejects `{}`) and split `add_documents` into batches by `get_max_batch_size()`.
+
+### Consequences
+
+- One fewer dependency; the vector store behavior is fully owned and tested in this repository (tests run against a real chromadb instance).
+- Reading an existing `langchain-chroma` database was confirmed manually by the maintainer on 2026-11-15.
+- Only the three operations above exist; other `langchain-chroma` APIs (e.g. `delete`, `similarity_search_with_score`) must be added explicitly if needed.
+- Changing `EMBED_MODEL` changes the embedding dimension, so an existing collection becomes unusable; recreate the database or use a different `COLLECTION_NAME`.
+
+---
+
+## ADR-0006: Separate Ollama client URL from server bind address
+
+- **Status**: Accepted
+- **Date**: 2026-11-15
+- **Commits**: `163fcc3`, `4126efc` (introduce `OLLAMA_BASE_URL`), `8b3afbd` (`OLLAMA_HOST` fallback, error mapping)
+
+### Context
+
+`langchain-ollama` / `ollama` read `OLLAMA_HOST` as the client destination. The same variable is commonly set to `0.0.0.0:11434` to make the Ollama *server* listen on all interfaces, and connecting to `0.0.0.0` fails on Windows, so the app could not reach a running Ollama.
+
+### Decision
+
+- Add `OLLAMA_BASE_URL` for the client destination and pass it explicitly as `base_url` to `OllamaEmbeddings` and `OllamaLLM`; `docker-compose.yml` sets `OLLAMA_BASE_URL=http://ollama:11434`.
+- When `OLLAMA_BASE_URL` is unset, fall back to `OLLAMA_HOST` for backward compatibility, replacing wildcard bind addresses (`0.0.0.0`, `::`) with `127.0.0.1`; the final default is `http://127.0.0.1:11434`.
+- Translate Ollama errors in one helper (`_ollama_errors()`) shared by `/query` and `/debug/search`: model not found → `404`, other Ollama errors → `502`, connection failures and HTTP client timeouts → `503`.
+- Do not add a configurable client timeout; the Ollama client default (no timeout) is kept as the existing specification.
+
+### Consequences
+
+- The app works when the host environment sets `OLLAMA_HOST=0.0.0.0:11434` for the Ollama server.
+- Deployments that used `OLLAMA_HOST` to point at a remote Ollama keep working without changes.
+- Without a timeout, a slow or stuck Ollama request waits indefinitely instead of returning `503`; introducing a timeout would be a new decision.
 
 ---
 

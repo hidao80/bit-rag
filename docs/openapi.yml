@@ -113,7 +113,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorDetail"
         "503":
-          description: QA chain not ready, or Ollama unreachable
+          description: QA chain not ready, or Ollama unreachable or timed out
           content:
             application/json:
               schema:
@@ -152,8 +152,20 @@ paths:
                 chunks:
                   - content: LangChain is a framework for building LLM applications.
                     metadata: {}
+        "404":
+          description: Ollama embedding model not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "502":
+          description: Ollama API error (other than model-not-found)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
         "503":
-          description: Vector database not ready
+          description: Vector database not ready, or Ollama unreachable or timed out
           content:
             application/json:
               schema:

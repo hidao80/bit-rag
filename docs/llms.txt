@@ -25,7 +25,7 @@ Markdown input is split by heading (H1/H2/H3), tables are converted to independe
 
 ## Configuration
 
-Environment variables (see `src/main.py`): `PERSIST_DIR`, `EMBED_MODEL`, `LLM_MODEL`, `RESPONSE_LANG`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MIN_CHUNK_SIZE`.
+Environment variables (see `src/main.py`): `PERSIST_DIR`, `COLLECTION_NAME`, `OLLAMA_BASE_URL` (falls back to `OLLAMA_HOST`), `EMBED_MODEL`, `LLM_MODEL`, `RESPONSE_LANG`, `CHUNK_SIZE`, `CHUNK_OVERLAP`, `MIN_CHUNK_SIZE`.
 
 ## Docs
 
