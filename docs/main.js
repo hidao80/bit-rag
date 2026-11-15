@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var LANGUAGES = ["en", "ja", "zh", "es", "ru"];
+  var LANGUAGES = ["en", "ja", "zh", "es", "ru", "de"];
   var STORAGE_KEY = "bit-rag-lang";
 
   var META = {
@@ -24,6 +24,10 @@
     ru: {
       title: "bit-rag — простейший локальный RAG API-сервер",
       description: "bit-rag — простейший локальный RAG API-сервер. FastAPI + LangChain + ChromaDB + Ollama, без настройки базы данных или веб-сервера. Полностью автономный, приватный и готов за считанные минуты."
+    },
+    de: {
+      title: "bit-rag – der einfachste lokale RAG-API-Server",
+      description: "bit-rag ist der einfachste lokale RAG-API-Server. FastAPI + LangChain + ChromaDB + Ollama, ohne Einrichtung von Datenbank oder Webserver. Selbst gehostet, privat und in wenigen Minuten einsatzbereit."
     }
   };
 

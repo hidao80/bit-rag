@@ -41,7 +41,7 @@
 }
 </script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.css">
 <link rel="stylesheet" href="style.css">
 
 <main class="container">
@@ -53,6 +53,7 @@
       <option value="zh">中文</option>
       <option value="es">Español</option>
       <option value="ru">Русский</option>
+      <option value="de">Deutsch</option>
     </select>
   </div>
 
@@ -66,6 +67,7 @@
         <span language="zh">最简单的本地 RAG API 服务器。FastAPI + LangChain + ChromaDB + Ollama —— 无需单独搭建数据库或 Web 服务器。</span>
         <span language="es">El servidor API RAG local más simple. FastAPI + LangChain + ChromaDB + Ollama, sin necesidad de una base de datos o servidor web independiente.</span>
         <span language="ru">Простейший локальный RAG API-сервер. FastAPI + LangChain + ChromaDB + Ollama — без отдельной базы данных или веб-сервера.</span>
+        <span language="de">Der einfachste lokale RAG-API-Server. FastAPI + LangChain + ChromaDB + Ollama – ohne separate Datenbank oder separaten Webserver.</span>
       </template>
     </p>
     <div class="cta">
@@ -76,6 +78,7 @@
           <span language="zh">在 GitHub 上查看</span>
           <span language="es">Ver en GitHub</span>
           <span language="ru">Смотреть на GitHub</span>
+          <span language="de">Auf GitHub ansehen</span>
         </template>
       </a>
       <a role="button" class="secondary" href="#quick-start">
@@ -85,6 +88,7 @@
           <span language="zh">快速开始</span>
           <span language="es">Inicio rápido</span>
           <span language="ru">Быстрый старт</span>
+          <span language="de">Schnellstart</span>
         </template>
       </a>
     </div>
@@ -105,6 +109,7 @@
         <span language="zh">为什么选择 bit-rag</span>
         <span language="es">Por qué bit-rag</span>
         <span language="ru">Почему bit-rag</span>
+        <span language="de">Warum bit-rag</span>
       </template>
     </h2>
     <p>
@@ -114,6 +119,7 @@
         <span language="zh">仅仅为了尝试 RAG 就搭建完整的数据库服务器或 Web 框架实在是大材小用。bit-rag 将检索增强生成封装成一个小巧、自包含的 Web API —— 可直接接入现有应用和 Webhook，并完全在你自己的机器上运行。</span>
         <span language="es">Levantar un servidor de base de datos o un framework web completo solo para probar RAG es excesivo. bit-rag expone la generación aumentada por recuperación como una API web pequeña y autocontenida, lista para integrarse en aplicaciones y webhooks existentes, y funciona completamente en tu propia máquina.</span>
         <span language="ru">Разворачивать полноценный сервер базы данных или веб-фреймворк только ради RAG — излишне. bit-rag предоставляет retrieval-augmented generation в виде компактного автономного Web API, который легко встраивается в существующие приложения и вебхуки и полностью работает на вашей машине.</span>
+        <span language="de">Nur um RAG auszuprobieren, einen vollständigen Datenbankserver oder ein Web-Framework aufzusetzen, ist übertrieben. bit-rag stellt Retrieval-Augmented Generation als kleine, eigenständige Web-API bereit – sie lässt sich direkt in bestehende Anwendungen und Webhooks einbinden und läuft vollständig auf Ihrem eigenen Rechner.</span>
       </template>
     </p>
   </section>
@@ -126,6 +132,7 @@
         <span language="zh">功能</span>
         <span language="es">Características</span>
         <span language="ru">Возможности</span>
+        <span language="de">Funktionen</span>
       </template>
     </h2>
     <div class="grid-features">
@@ -138,6 +145,7 @@
             <span language="zh">一条命令启动</span>
             <span language="es">Inicio con un comando</span>
             <span language="ru">Запуск одной командой</span>
+            <span language="de">Start mit einem Befehl</span>
           </template>
         </h3>
         <p>
@@ -147,6 +155,7 @@
             <span language="zh"><code>docker compose up</code> 会同时启动 Ollama 和应用。首次运行时自动拉取模型。</span>
             <span language="es"><code>docker compose up</code> inicia Ollama y la app juntos. Los modelos se descargan automáticamente en la primera ejecución.</span>
             <span language="ru"><code>docker compose up</code> запускает Ollama и приложение вместе. Модели загружаются автоматически при первом запуске.</span>
+            <span language="de"><code>docker compose up</code> startet Ollama und die App gemeinsam. Die Modelle werden beim ersten Start automatisch heruntergeladen.</span>
           </template>
         </p>
       </article>
@@ -159,6 +168,7 @@
             <span language="zh">完全自托管</span>
             <span language="es">Totalmente autoalojado</span>
             <span language="ru">Полностью автономный хостинг</span>
+            <span language="de">Vollständig selbst gehostet</span>
           </template>
         </h3>
         <p>
@@ -168,6 +178,7 @@
             <span language="zh">无需云端 API 密钥，无需外部向量数据库。一切都通过 Ollama 和 ChromaDB 在本地运行。</span>
             <span language="es">Sin claves de API en la nube, sin base de datos vectorial externa. Todo se ejecuta localmente con Ollama y ChromaDB.</span>
             <span language="ru">Не нужны облачные API-ключи и внешняя векторная база данных. Всё работает локально с Ollama и ChromaDB.</span>
+            <span language="de">Keine Cloud-API-Schlüssel, keine externe Vektordatenbank. Alles läuft lokal mit Ollama und ChromaDB.</span>
           </template>
         </p>
       </article>
@@ -180,6 +191,7 @@
             <span language="zh">支持 Markdown 的导入</span>
             <span language="es">Ingesta compatible con Markdown</span>
             <span language="ru">Импорт с учётом Markdown</span>
+            <span language="de">Markdown-bewusster Import</span>
           </template>
         </h3>
         <p>
@@ -189,6 +201,7 @@
             <span language="zh">按标题拆分，将表格保留为结构化 JSON 行，并合并短片段以提升检索效果。</span>
             <span language="es">Divide por encabezados, conserva las tablas como filas JSON estructuradas y fusiona fragmentos cortos para mejorar la recuperación.</span>
             <span language="ru">Разбивает по заголовкам, сохраняет таблицы как структурированные строки JSON и объединяет короткие фрагменты для лучшего поиска.</span>
+            <span language="de">Teilt nach Überschriften, bewahrt Tabellen als strukturierte JSON-Zeilen und führt kurze Fragmente zusammen, um die Suche zu verbessern.</span>
           </template>
         </p>
       </article>
@@ -201,6 +214,7 @@
             <span language="zh">多语言回答</span>
             <span language="es">Respuestas multilingües</span>
             <span language="ru">Многоязычные ответы</span>
+            <span language="de">Mehrsprachige Antworten</span>
           </template>
         </h3>
         <p>
@@ -210,6 +224,30 @@
             <span language="zh">按请求设置响应语言 —— 用英语、日语或模型支持的任何语言回答同一个问题。</span>
             <span language="es">Define el idioma de respuesta por solicitud: responde la misma pregunta en inglés, japonés o cualquier idioma que soporte tu modelo.</span>
             <span language="ru">Задавайте язык ответа для каждого запроса — отвечайте на один и тот же вопрос на английском, японском или любом языке, поддерживаемом вашей моделью.</span>
+            <span language="de">Legen Sie die Antwortsprache pro Anfrage fest – beantworten Sie dieselbe Frage auf Englisch, Japanisch oder in jeder Sprache, die Ihr Modell unterstützt.</span>
+          </template>
+        </p>
+      </article>
+      <article>
+        <div class="icon">🔌</div>
+        <h3>
+          <template type="language-group">
+            <span language="en">Works with your Ollama</span>
+            <span language="ja">既存のOllamaにそのまま接続</span>
+            <span language="zh">直接连接现有的 Ollama</span>
+            <span language="es">Funciona con tu Ollama</span>
+            <span language="ru">Работает с вашим Ollama</span>
+            <span language="de">Funktioniert mit Ihrem Ollama</span>
+          </template>
+        </h3>
+        <p>
+          <template type="language-group">
+            <span language="en">Connects via <code>OLLAMA_BASE_URL</code> or falls back to <code>OLLAMA_HOST</code> (a <code>0.0.0.0</code> bind address is mapped to <code>127.0.0.1</code>). Ollama errors come back as clear 404 / 502 / 503 responses.</span>
+            <span language="ja"><code>OLLAMA_BASE_URL</code> で接続先を指定、未設定なら <code>OLLAMA_HOST</code> を使用(<code>0.0.0.0</code> は <code>127.0.0.1</code> に変換)。Ollamaのエラーは 404 / 502 / 503 の分かりやすい応答で返す。</span>
+            <span language="zh">通过 <code>OLLAMA_BASE_URL</code> 连接，未设置时回退到 <code>OLLAMA_HOST</code>(<code>0.0.0.0</code> 绑定地址会映射为 <code>127.0.0.1</code>)。Ollama 的错误会以清晰的 404 / 502 / 503 响应返回。</span>
+            <span language="es">Se conecta mediante <code>OLLAMA_BASE_URL</code> o recurre a <code>OLLAMA_HOST</code> (la dirección <code>0.0.0.0</code> se convierte en <code>127.0.0.1</code>). Los errores de Ollama se devuelven como respuestas claras 404 / 502 / 503.</span>
+            <span language="ru">Подключается через <code>OLLAMA_BASE_URL</code> или использует <code>OLLAMA_HOST</code> (адрес <code>0.0.0.0</code> заменяется на <code>127.0.0.1</code>). Ошибки Ollama возвращаются понятными ответами 404 / 502 / 503.</span>
+            <span language="de">Verbindet sich über <code>OLLAMA_BASE_URL</code> oder greift auf <code>OLLAMA_HOST</code> zurück (die Bind-Adresse <code>0.0.0.0</code> wird zu <code>127.0.0.1</code>). Ollama-Fehler werden als klare 404-/502-/503-Antworten zurückgegeben.</span>
           </template>
         </p>
       </article>
@@ -224,6 +262,7 @@
         <span language="zh">快速开始</span>
         <span language="es">Inicio rápido</span>
         <span language="ru">Быстрый старт</span>
+        <span language="de">Schnellstart</span>
       </template>
     </h2>
     <p><strong>
@@ -233,6 +272,7 @@
         <span language="zh">使用 Docker 运行(推荐)</span>
         <span language="es">Ejecutar con Docker (recomendado)</span>
         <span language="ru">Запуск через Docker (рекомендуется)</span>
+        <span language="de">Mit Docker ausführen (empfohlen)</span>
       </template>
     </strong></p>
     <div class="code-row">
@@ -249,6 +289,7 @@
         <span language="zh">本地运行</span>
         <span language="es">Ejecutar localmente</span>
         <span language="ru">Локальный запуск</span>
+        <span language="de">Lokal ausführen</span>
       </template>
     </strong></p>
     <div class="code-row">
@@ -271,6 +312,7 @@ uv run uvicorn src.main:app --reload</code></pre>
         <span language="zh">API 概览</span>
         <span language="es">Resumen de la API</span>
         <span language="ru">Обзор API</span>
+        <span language="de">API im Überblick</span>
       </template>
     </h2>
     <figure>
@@ -284,6 +326,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">端点</span>
                 <span language="es">Endpoint</span>
                 <span language="ru">Эндпоинт</span>
+                <span language="de">Endpunkt</span>
               </template>
             </th>
             <th>
@@ -293,6 +336,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">方法</span>
                 <span language="es">Método</span>
                 <span language="ru">Метод</span>
+                <span language="de">Methode</span>
               </template>
             </th>
             <th>
@@ -302,6 +346,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">说明</span>
                 <span language="es">Descripción</span>
                 <span language="ru">Описание</span>
+                <span language="de">Beschreibung</span>
               </template>
             </th>
           </tr>
@@ -317,6 +362,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">将文本注册到向量数据库(后台处理)</span>
                 <span language="es">Registra texto en la base de datos vectorial (proceso en segundo plano)</span>
                 <span language="ru">Регистрация текста в векторной БД (фоновый процесс)</span>
+                <span language="de">Text in der Vektordatenbank registrieren (Hintergrundprozess)</span>
               </template>
             </td>
           </tr>
@@ -330,6 +376,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">注册 UTF-8 文本文件(txt、md、log、yaml、json 等)</span>
                 <span language="es">Registra un archivo de texto UTF-8 (txt, md, log, yaml, json, etc.)</span>
                 <span language="ru">Регистрация текстового файла UTF-8 (txt, md, log, yaml, json и др.)</span>
+                <span language="de">Eine UTF-8-Textdatei registrieren (txt, md, log, yaml, json usw.)</span>
               </template>
             </td>
           </tr>
@@ -343,6 +390,7 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">使用 RAG 回答问题</span>
                 <span language="es">Responde preguntas usando RAG</span>
                 <span language="ru">Ответы на вопросы с помощью RAG</span>
+                <span language="de">Fragen mit RAG beantworten</span>
               </template>
             </td>
           </tr>
@@ -356,12 +404,23 @@ uv run uvicorn src.main:app --reload</code></pre>
                 <span language="zh">不调用 LLM，直接返回查询的原始检索结果(仅调试用)</span>
                 <span language="es">Devuelve los fragmentos recuperados sin invocar el LLM (solo depuración)</span>
                 <span language="ru">Возвращает необработанные найденные фрагменты без вызова LLM (только для отладки)</span>
+                <span language="de">Gibt die gefundenen Rohfragmente zurück, ohne das LLM aufzurufen (nur zum Debuggen)</span>
               </template>
             </td>
           </tr>
         </tbody>
       </table>
     </figure>
+    <p>
+      <template type="language-group">
+        <span language="en"><code>/query</code> and <code>/debug/search</code> return <code>404</code> when the model is missing in Ollama, <code>502</code> for other Ollama errors, and <code>503</code> when Ollama is unreachable or the vector DB is not ready.</span>
+        <span language="ja"><code>/query</code> と <code>/debug/search</code> は、Ollamaにモデルがなければ <code>404</code>、その他のOllamaエラーは <code>502</code>、Ollamaに接続できないかベクトルDBの準備ができていなければ <code>503</code> を返す。</span>
+        <span language="zh">当 Ollama 中缺少模型时，<code>/query</code> 和 <code>/debug/search</code> 返回 <code>404</code>；其他 Ollama 错误返回 <code>502</code>；无法连接 Ollama 或向量数据库未就绪时返回 <code>503</code>。</span>
+        <span language="es"><code>/query</code> y <code>/debug/search</code> devuelven <code>404</code> si falta el modelo en Ollama, <code>502</code> ante otros errores de Ollama y <code>503</code> si Ollama no está accesible o la base de datos vectorial no está lista.</span>
+        <span language="ru"><code>/query</code> и <code>/debug/search</code> возвращают <code>404</code>, если модели нет в Ollama, <code>502</code> при других ошибках Ollama и <code>503</code>, если Ollama недоступен или векторная БД не готова.</span>
+        <span language="de"><code>/query</code> und <code>/debug/search</code> liefern <code>404</code>, wenn das Modell in Ollama fehlt, <code>502</code> bei anderen Ollama-Fehlern und <code>503</code>, wenn Ollama nicht erreichbar oder die Vektordatenbank nicht bereit ist.</span>
+      </template>
+    </p>
     <div class="code-row">
       <pre><code class="lang-bash">curl -X POST "http://localhost:8000/query" \
   -H "Content-Type: application/json" \
@@ -370,6 +429,28 @@ uv run uvicorn src.main:app --reload</code></pre>
         <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
+    </div>
+  </section>
+
+  <section id="tech-stack">
+    <h2>
+      <template type="language-group">
+        <span language="en">Tech stack</span>
+        <span language="ja">技術スタック</span>
+        <span language="zh">技术栈</span>
+        <span language="es">Tecnologías</span>
+        <span language="ru">Технологии</span>
+        <span language="de">Technologie-Stack</span>
+      </template>
+    </h2>
+    <div class="badges">
+      <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12+">
+      <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
+      <img src="https://img.shields.io/badge/LangChain-1C3C3C?logo=langchain&amp;logoColor=white" alt="LangChain">
+      <img src="https://img.shields.io/badge/ChromaDB-1.5%2B-FF6446" alt="ChromaDB 1.5+">
+      <img src="https://img.shields.io/badge/Ollama-000000?logo=ollama&amp;logoColor=white" alt="Ollama">
+      <img src="https://img.shields.io/badge/uv-DE5FE9?logo=uv&amp;logoColor=white" alt="uv">
+      <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&amp;logoColor=white" alt="Docker">
     </div>
   </section>
 
@@ -383,10 +464,11 @@ uv run uvicorn src.main:app --reload</code></pre>
       <span language="zh">MIT 许可证</span>
       <span language="es">Licencia MIT</span>
       <span language="ru">Лицензия MIT</span>
+      <span language="de">MIT-Lizenz</span>
     </template>
     · <a href="https://github.com/hidao80/bit-rag" target="_blank" rel="noopener">github.com/hidao80/bit-rag</a>
   </p>
 </footer>
 
 <script src="https://unpkg.com/multilanguagejs@2.0.1/dist/multilanguagejs.umd.cjs"></script>
-<script src="main.min.js"></script>
+<script src="main.js"></script>
