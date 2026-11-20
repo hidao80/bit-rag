@@ -31,7 +31,13 @@ docker compose up
 
 ### Run locally
 
+[mise](https://mise.jdx.dev/) installs the Python and uv versions pinned in `mise.toml`.
+
 ```bash
+# Install Python and uv via mise
+mise trust
+mise install
+
 # Download Ollama Model
 ollama pull nomic-embed-text:latest
 ollama pull qwen2.5:1.5b
@@ -42,6 +48,33 @@ uv sync
 # Make sure Ollama is running separately
 uv run uvicorn src.main:app --reload
 ```
+
+### Development setup
+
+`uv sync --extra dev` also installs the development tools (ruff, pytest, pip-audit, taskipy), so you can run the `taskipy` tasks defined in `pyproject.toml`.
+
+```bash
+# Install runtime + development dependencies
+uv sync --extra dev
+
+# Run tasks via taskipy
+uv run task dev    # Start the dev server (uvicorn --reload)
+uv run task test   # Run tests
+uv run task lint   # Lint with ruff
+uv run task fmt    # Format with ruff
+uv run task audit  # Audit dependencies
+```
+
+> [!NOTE]
+> `uv run dev` does not work: `dev` is a taskipy task, not an executable. Use `uv run task dev`.
+
+> [!WARNING]
+> Running plain `uv sync` (without `--extra dev`) removes the development packages, because uv syncs the environment exactly to the requested dependencies. Always include `--extra dev` (or `--all-extras`) when syncing a development environment.
+>
+> ```bash
+> uv sync              # removes ruff, pytest, pip-audit, taskipy
+> uv sync --extra dev  # keeps them installed
+> ```
 
 ## API
 
